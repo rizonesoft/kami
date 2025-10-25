@@ -1,50 +1,85 @@
-# Building from kami-search Source
+# SearXNG Branding Approach
 
-This repository is configured to build Docker images directly from the [kami-search](https://github.com/rizonesoft/kami-search) repository source code.
+This repository applies Kami branding to the official SearXNG Docker image.
 
-## What Changed
+## Official SearXNG Position on Branding
 
-The `Dockerfile` now uses a **multi-stage build** that:
+### What We Learned
 
-1. **Build Stage** (Python 3.11 Alpine)
-   - Clones the kami-search repository from GitHub
-   - Installs build dependencies (Node.js, Python, Make, etc.)
-   - Installs Python packages from requirements.txt
-   - **CRITICAL**: Runs `make themes.all` to build static files with Kami branding
-   - Compiles TypeScript, processes CSS, and copies custom logos
+After extensive research of official SearXNG documentation and maintainer guidance:
 
-2. **Runtime Stage** (Official SearXNG Image)
-   - Uses proven official `searxng/searxng:latest` base
-   - Copies the **BUILT** application with compiled static files
-   - All Kami branding assets are now properly compiled and applied
+**From SearXNG Core Maintainer (@return42):**
+> "We do not have options to customize UI .. if someone wants to customize 'this or that' it is recommended to **create a fork (we call it a brand)** and modify the logo, theme or .. to your needs. Don't forget to rebase your customized branch regularly to get latest updates."
 
-## Why Build Step is Required
+### Current SearXNG Limitations
 
-⚠️ **Important Discovery**:
-- The kami-search repository has custom Kami branding in source files (`client/simple/src/brand/`)
-- BUT the static files (`searx/static/`) are NOT pre-built in the repository
-- Simply copying source files doesn't apply the branding
-- **We MUST run `make themes.all`** during Docker build to:
-  - Compile TypeScript → JavaScript
-  - Process LESS/CSS → compiled CSS
-  - Copy branded SVG logos to static directory
-  - Generate final static assets that the application serves
+- ❌ **No settings.yml option** for logo/favicon customization
+- ❌ **No UI customization settings** in the official release
+- ✅ **Only URL branding** available (`brand:` section in settings.yml)
+
+### Official Recommended Approach
+
+1. **Fork the repository** (kami-search is such a fork)
+2. **Modify branding files** in your fork
+3. **Rebase regularly** to get upstream updates
+4. **Deploy your fork** directly
+
+### Community Workarounds
+
+Since official customization options don't exist yet:
+
+**Method 1: Volume Mounts (docker-compose)**
+```yaml
+volumes:
+  - ./custom-logo.svg:/usr/local/searxng/searx/static/themes/simple/img/searxng.svg
+```
+❌ Problem: Lost on container updates
+
+**Method 2: Direct File Replacement (Dockerfile)**
+```dockerfile
+COPY custom-logo.svg /usr/local/searxng/searx/static/themes/simple/img/searxng.svg
+```
+✅ Persistent across deployments
+
+## Our Implementation
+
+We use **Method 2** with a smart twist:
+
+1. **Base**: Official `searxng/searxng:latest` image
+2. **Download**: Fetch Kami branding from kami-search repository
+3. **Replace**: Overwrite default logos in static directory
+4. **Deploy**: Railway automatically rebuilds when needed
 
 ## Benefits
 
-✅ **Always up-to-date**: Builds from the latest kami-search source  
-✅ **Customizable**: Easy to modify and add features  
-✅ **Railway-ready**: Works seamlessly with Railway deployments  
-✅ **Secure**: Multi-stage build keeps image size small  
+✅ **Uses official image**: Proven stability and security  
+✅ **Simple approach**: No complex builds required  
+✅ **Persistent branding**: Survives container updates  
+✅ **Railway-ready**: Fast deployment (<30 seconds)  
+✅ **Minimal size**: Only downloads 2 SVG files
 
-## Quick Deployment
+## How It Works
+
+```dockerfile
+# Start with official SearXNG
+FROM searxng/searxng:latest
+
+# Download Kami branding
+RUN wget -O /usr/local/searxng/searx/static/themes/simple/img/searxng.svg \
+    https://raw.githubusercontent.com/rizonesoft/kami-search/master/client/simple/src/brand/searxng.svg
+
+# Copy custom settings
+COPY settings.yml /etc/searxng/settings.yml
+```
+
+## Deployment
 
 ### Railway
 1. Push this repository to GitHub
 2. Connect to Railway
-3. Railway will automatically detect the Dockerfile
-4. Configure environment variables (see RAILWAY_DEPLOYMENT.md)
-5. Deploy!
+3. Railway auto-detects Dockerfile
+4. Configure environment variables
+5. Deploy! (Build time: ~30 seconds)
 
 ### Local Testing
 ```bash
