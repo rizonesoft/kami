@@ -1,24 +1,29 @@
-# Build stage - clone kami-search for source files
-FROM alpine:latest AS builder
-
-# Install git
-RUN apk add --no-cache git
-
-# Clone kami-search repository
-WORKDIR /app
-RUN git clone https://github.com/rizonesoft/kami-search.git .
-
-# Final stage - use official SearXNG image and overlay kami-search customizations
+# Use official SearXNG image as base
 FROM searxng/searxng:latest
 
-# Copy Python source (settings, engines, etc.)
-COPY --from=builder --chown=searxng:searxng /app/searx /usr/local/searxng/searx
+# Method 1: Volume mount approach (for docker-compose)
+# Add these branding files from kami-search via volume mounts in docker-compose.yaml
+# This is the official community-recommended method for Docker deployments
 
-# Copy branding source files directly (SVG logos, etc.)
-# These will be served by SearXNG from the client directory
-COPY --from=builder --chown=searxng:searxng /app/client/simple/src/brand/*.svg /usr/local/searxng/searx/static/themes/simple/img/
+# For Railway/standalone: Copy branding files directly
+# Download kami-search branding and copy to static directory
+USER root
 
-# Copy custom settings
+# Add wget to download files
+RUN apk add --no-cache wget
+
+# Download Kami branding files from kami-search repository
+RUN wget -O /usr/local/searxng/searx/static/themes/simple/img/searxng.svg \
+    https://raw.githubusercontent.com/rizonesoft/kami-search/master/client/simple/src/brand/searxng.svg && \
+    wget -O /usr/local/searxng/searx/static/themes/simple/img/searxng-wordmark.svg \
+    https://raw.githubusercontent.com/rizonesoft/kami-search/master/client/simple/src/brand/searxng-wordmark.svg || true
+
+# Fix ownership
+RUN chown -R searxng:searxng /usr/local/searxng/searx/static/themes/simple/img/
+
+USER searxng
+
+# Copy custom settings for Kami branding
 COPY --chown=searxng:searxng settings.yml /etc/searxng/settings.yml
 
 # Expose port
