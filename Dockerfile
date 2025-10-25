@@ -1,41 +1,22 @@
-# Build stage - clone and build kami-search with custom branding
-FROM python:3.11-alpine AS builder
+# Build stage - clone kami-search for source files
+FROM alpine:latest AS builder
 
-# Install build dependencies (git, node, make, python build tools)
-RUN apk add --no-cache \
-    git \
-    make \
-    bash \
-    nodejs \
-    npm \
-    python3-dev \
-    build-base \
-    libxml2-dev \
-    libxslt-dev \
-    openssl-dev \
-    libffi-dev \
-    coreutils
+# Install git
+RUN apk add --no-cache git
 
 # Clone kami-search repository
 WORKDIR /app
 RUN git clone https://github.com/rizonesoft/kami-search.git .
 
-# Install Python dependencies from requirements.txt FIRST
-# (setup.py needs these to run)
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Now install the package itself
-RUN pip install --no-cache-dir -e .
-
-# Build the themes/static files with custom Kami branding
-# This compiles TypeScript, processes CSS, and copies branded assets
-RUN make themes.all
-
-# Final stage - use official SearXNG image and overlay built kami-search
+# Final stage - use official SearXNG image and overlay kami-search customizations
 FROM searxng/searxng:latest
 
-# Copy the BUILT application with compiled static files
+# Copy Python source (settings, engines, etc.)
 COPY --from=builder --chown=searxng:searxng /app/searx /usr/local/searxng/searx
+
+# Copy branding source files directly (SVG logos, etc.)
+# These will be served by SearXNG from the client directory
+COPY --from=builder --chown=searxng:searxng /app/client/simple/src/brand/*.svg /usr/local/searxng/searx/static/themes/simple/img/
 
 # Copy custom settings
 COPY --chown=searxng:searxng settings.yml /etc/searxng/settings.yml
