@@ -8,14 +8,27 @@ The `Dockerfile` now uses a **multi-stage build** that:
 
 1. **Build Stage** (Python 3.11 Alpine)
    - Clones the kami-search repository from GitHub
-   - Installs all build dependencies
+   - Installs build dependencies (Node.js, Python, Make, etc.)
    - Installs Python packages from requirements.txt
+   - **CRITICAL**: Runs `make themes.all` to build static files with Kami branding
+   - Compiles TypeScript, processes CSS, and copies custom logos
 
-2. **Runtime Stage** (Python 3.11 Alpine)
-   - Creates a minimal runtime environment
-   - Copies the built application from the build stage
-   - Configures uWSGI as the application server
-   - Runs as a non-root `searxng` user
+2. **Runtime Stage** (Official SearXNG Image)
+   - Uses proven official `searxng/searxng:latest` base
+   - Copies the **BUILT** application with compiled static files
+   - All Kami branding assets are now properly compiled and applied
+
+## Why Build Step is Required
+
+⚠️ **Important Discovery**:
+- The kami-search repository has custom Kami branding in source files (`client/simple/src/brand/`)
+- BUT the static files (`searx/static/`) are NOT pre-built in the repository
+- Simply copying source files doesn't apply the branding
+- **We MUST run `make themes.all`** during Docker build to:
+  - Compile TypeScript → JavaScript
+  - Process LESS/CSS → compiled CSS
+  - Copy branded SVG logos to static directory
+  - Generate final static assets that the application serves
 
 ## Benefits
 
