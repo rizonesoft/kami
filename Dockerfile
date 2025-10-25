@@ -13,7 +13,8 @@ RUN apk add --no-cache \
     libxml2-dev \
     libxslt-dev \
     openssl-dev \
-    libffi-dev
+    libffi-dev \
+    coreutils
 
 # Clone kami-search repository
 WORKDIR /app
