@@ -19,7 +19,11 @@ RUN apk add --no-cache \
 WORKDIR /app
 RUN git clone https://github.com/rizonesoft/kami-search.git .
 
-# Install Python dependencies
+# Install Python dependencies from requirements.txt FIRST
+# (setup.py needs these to run)
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Now install the package itself
 RUN pip install --no-cache-dir -e .
 
 # Build the themes/static files with custom Kami branding
