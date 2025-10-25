@@ -1,0 +1,38 @@
+use_default_settings: true
+
+general:
+  instance_name: "Kitsune Search"
+
+server:
+  secret_key: "__REPLACE_THIS__"  # Railway will use env var
+  limiter: false
+  image_proxy: false
+  port: 8080
+  bind_address: "0.0.0.0:8080"
+
+ui:
+  static_use_hash: true
+  default_theme: simple
+  theme_args:
+    simple_style: auto
+
+search:
+  safe_search: 0
+  autocomplete: "duckduckgo"
+  default_lang: "en"
+  formats:
+    - html
+    - json
+
+enabled_plugins:
+  - 'Hash plugin'
+  - 'Self Informations'
+  - 'Tracker URL remover'
+
+engines:
+  - name: duckduckgo
+    disabled: false
+  - name: brave
+    disabled: false
+  - name: wikipedia
+    disabled: false
