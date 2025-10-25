@@ -1,7 +1,14 @@
 use_default_settings: true
 
 general:
-  instance_name: "Kami"
+  instance_name: "Kami Search"
+  
+brand:
+  new_issue_url: ""
+  docs_url: ""
+  public_instances: ""
+  wiki_url: ""
+  issue_url: ""
 
 server:
   secret_key: "__REPLACE_THIS__"  # Railway will use env var
@@ -15,6 +22,7 @@ ui:
   default_theme: simple
   theme_args:
     simple_style: auto
+  custom_css: "/static/themes/simple/css/custom.css"
 
 search:
   safe_search: 0

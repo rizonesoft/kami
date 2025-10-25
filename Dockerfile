@@ -3,12 +3,13 @@ FROM searxng/searxng:latest
 # Set working directory
 WORKDIR /usr/local/searxng
 
-# Copy custom settings
+# Copy custom settings and branding
 COPY --chown=searxng:searxng settings.yml /etc/searxng/settings.yml
+COPY --chown=searxng:searxng custom.css /usr/local/searxng/searx/static/themes/simple/css/custom.css
 
 # Environment variables with defaults
 ENV SEARXNG_SETTINGS_PATH=/etc/searxng/settings.yml
-ENV INSTANCE_NAME=SearXNG
+ENV INSTANCE_NAME="Kami Search"
 ENV AUTOCOMPLETE=
 ENV BASE_URL=
 ENV MORTY_KEY=

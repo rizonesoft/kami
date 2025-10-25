@@ -1,0 +1,48 @@
+/* Kami Search - Custom Branding */
+
+/* Hide SearXNG branding footer */
+#main_preferences footer,
+.footer {
+    display: none !important;
+}
+
+/* Hide "powered by" text if present */
+[class*="powered"],
+[class*="searxng"] {
+    display: none !important;
+}
+
+/* Customize the logo/title area */
+.title h1::before {
+    content: "🦊 ";
+}
+
+/* Optional: Change search button text */
+.search_btn::before {
+    content: "Search with Kami";
+}
+
+/* Hide SearXNG links in preferences */
+a[href*="searxng.org"],
+a[href*="github.com/searxng"] {
+    display: none !important;
+}
+
+/* Clean up the interface */
+.center {
+    text-align: center;
+}
+
+/* Kami brand colors (optional - customize these) */
+:root {
+    --color-primary: #667eea;
+    --color-secondary: #764ba2;
+}
+
+/* Apply brand colors to buttons */
+.search_btn,
+button[type="submit"] {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    border: none;
+    color: white;
+}
