@@ -21,5 +21,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
   CMD wget --quiet --tries=1 --spider http://localhost:8080/healthz || exit 1
 
-# Start command
-CMD ["/sbin/tini", "--", "/usr/local/searxng/dockerfiles/docker-entrypoint.sh"]
+# Start command - use the default entrypoint from base image
+# The base image already has the correct entrypoint configured
