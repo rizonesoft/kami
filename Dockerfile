@@ -7,7 +7,7 @@ FROM python:3.11-alpine AS builder
 # Install git to clone repository
 RUN apk add --no-cache git
 
-# Clone kami-search repository (latest branding updates)
+# Clone kami-search repository (rebuild from latest source)
 WORKDIR /app
 RUN git clone https://github.com/rizonesoft/kami-search.git .
 
