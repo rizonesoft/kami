@@ -29,11 +29,13 @@ RUN apk add --no-cache \
     tini \
     uwsgi \
     uwsgi-python3 \
-    brotli
+    brotli \
+    wget
 
-# Create searxng user
+# Create searxng user and directories
 RUN addgroup -g 1000 searxng && \
-    adduser -u 1000 -D -h /usr/local/searxng -G searxng searxng
+    adduser -u 1000 -D -h /usr/local/searxng -G searxng searxng && \
+    mkdir -p /etc/searxng /var/log/uwsgi
 
 # Copy application from builder
 COPY --from=builder --chown=searxng:searxng /app /usr/local/searxng
@@ -45,8 +47,10 @@ COPY --chown=searxng:searxng settings.yml /etc/searxng/settings.yml
 # Set working directory
 WORKDIR /usr/local/searxng
 
-# Switch to searxng user
-USER searxng
+# Set environment variables
+ENV SEARXNG_SETTINGS_PATH=/etc/searxng/settings.yml \
+    UWSGI_WORKERS=4 \
+    UWSGI_THREADS=4
 
 # Expose port
 EXPOSE 8080
@@ -55,8 +59,21 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
   CMD wget --quiet --tries=1 --spider http://localhost:8080/healthz || exit 1
 
+# Switch to searxng user
+USER searxng
+
 # Use tini as entrypoint
 ENTRYPOINT ["/sbin/tini", "--"]
 
-# Start SearXNG
-CMD ["uwsgi", "--master", "--http-socket", "0.0.0.0:8080", "--wsgi-file", "searx/webapp.py", "--callable", "application"]
+# Start SearXNG with uWSGI
+CMD ["uwsgi", \
+     "--master", \
+     "--http-socket", "0.0.0.0:8080", \
+     "--enable-threads", \
+     "--workers", "4", \
+     "--threads", "4", \
+     "--harakiri", "60", \
+     "--chdir", "/usr/local/searxng", \
+     "--pythonpath", "/usr/local/searxng", \
+     "--module", "searx.webapp", \
+     "--callable", "application"]
