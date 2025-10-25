@@ -2,6 +2,10 @@
 
 Create a new SearXNG instance in five minutes using Docker
 
+> **🚀 Railway Deployment Available**  
+> This repository includes a Railway-ready Dockerfile that builds directly from the [kami-search](https://github.com/rizonesoft/kami-search) repository source.  
+> See [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md) for deployment instructions.
+
 ## What is included?
 
 | Name                                          | Description                                                    | Docker image                                                                 | Dockerfile                                                                                                                                                                                    |

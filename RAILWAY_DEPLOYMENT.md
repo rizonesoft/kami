@@ -86,10 +86,13 @@ After your first deployment:
 ## 🎯 Configuration Details
 
 ### Dockerfile
-- Based on official `searxng/searxng:latest` image
+- Builds from source: `https://github.com/rizonesoft/kami-search`
+- Multi-stage build using Python 3.11 Alpine
+- Clones and builds the kami-search repository directly
 - Exposes port 8080
 - Includes health check endpoint at `/healthz`
 - Copies custom `settings.yml` from root directory
+- Uses uWSGI as the application server
 
 ### settings.yml
 - **Instance Name**: "Kitsune Search"
@@ -149,7 +152,34 @@ This repository contains two deployment methods:
 
 2. **Railway Deployment** (Dockerfile)
    - Standalone container
+   - Builds from kami-search source
    - No reverse proxy needed
    - Configuration in root `settings.yml`
 
 Both can coexist without conflicts.
+
+## 🔧 Advanced Configuration
+
+### Pinning to a Specific Version
+
+The Dockerfile clones the latest `master` branch of kami-search. To pin to a specific version:
+
+**Edit line 16 in `Dockerfile`:**
+```dockerfile
+# For a specific branch:
+RUN git clone --branch your-branch-name https://github.com/rizonesoft/kami-search.git .
+
+# For a specific tag:
+RUN git clone --branch v1.0.0 --depth 1 https://github.com/rizonesoft/kami-search.git .
+
+# For a specific commit:
+RUN git clone https://github.com/rizonesoft/kami-search.git . && \
+    git checkout <commit-sha>
+```
+
+### Building from a Different Repository
+
+To use a different SearXNG fork, update line 16:
+```dockerfile
+RUN git clone https://github.com/your-username/your-fork.git .
+```
