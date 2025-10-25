@@ -5,8 +5,8 @@ general:
 
 server:
   secret_key: "__REPLACE_THIS__"  # Railway will use env var
-  limiter: false
-  image_proxy: false
+  limiter: true
+  image_proxy: true
   port: 8080
   bind_address: "0.0.0.0:8080"
 
