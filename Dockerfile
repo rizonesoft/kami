@@ -11,8 +11,7 @@ RUN apk add --no-cache \
 
 # Clone SearXNG source
 WORKDIR /app
-RUN git clone https://github.com/searxng/searxng.git . && \
-    git checkout latest
+RUN git clone --depth 1 https://github.com/searxng/searxng.git .
 
 # Rebrand SearXNG to Kami Search in source code
 RUN find . -type f \( -name "*.html" -o -name "*.py" -o -name "*.js" \) \
@@ -22,8 +21,10 @@ RUN find . -type f \( -name "*.html" -o -name "*.py" -o -name "*.js" \) \
     find . -type f -name "*.html" \
     -exec sed -i 's/github\.com\/searxng\/searxng//g' {} \;
 
-# Build from source
-RUN pip3 install --break-system-packages -e .
+# Install Python dependencies
+RUN pip3 install --break-system-packages --no-cache-dir \
+    -r requirements.txt && \
+    python3 -m compileall -q searx
 
 # Production image
 FROM python:3.11-alpine
@@ -34,21 +35,24 @@ RUN apk add --no-cache \
     su-exec \
     wget
 
+# Create searxng user first
+RUN adduser -D -u 1000 searxng
+
 # Copy built application
 COPY --from=builder /app /usr/local/searxng
 WORKDIR /usr/local/searxng
 
-# Copy custom settings
-COPY --chown=1000:1000 settings.yml /etc/searxng/settings.yml
+# Create settings directory and copy custom settings
+RUN mkdir -p /etc/searxng
+COPY --chown=searxng:searxng settings.yml /etc/searxng/settings.yml
 
-# Copy custom CSS
+# Copy custom CSS and inject into theme
 COPY custom.css /tmp/kami-custom.css
 RUN cat /tmp/kami-custom.css >> /usr/local/searxng/searx/static/themes/simple/css/searxng.min.css && \
     rm /tmp/kami-custom.css
 
-# Create searxng user
-RUN adduser -D -u 1000 -h /usr/local/searxng searxng && \
-    chown -R searxng:searxng /usr/local/searxng
+# Set proper permissions
+RUN chown -R searxng:searxng /usr/local/searxng /etc/searxng
 
 # Environment variables with defaults
 ENV SEARXNG_SETTINGS_PATH=/etc/searxng/settings.yml
