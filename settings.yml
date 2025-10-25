@@ -18,11 +18,10 @@ server:
   bind_address: "0.0.0.0:8080"
 
 ui:
-  static_use_hash: true
+  static_use_hash: false
   default_theme: simple
   theme_args:
     simple_style: auto
-  custom_css: "/static/themes/simple/css/custom.css"
 
 search:
   safe_search: 0

@@ -1,48 +1,75 @@
 /* Kami Search - Custom Branding */
 
-/* Hide SearXNG branding footer */
-#main_preferences footer,
-.footer {
-    display: none !important;
-}
-
-/* Hide "powered by" text if present */
-[class*="powered"],
-[class*="searxng"] {
-    display: none !important;
-}
-
-/* Customize the logo/title area */
-.title h1::before {
-    content: "🦊 ";
-}
-
-/* Optional: Change search button text */
-.search_btn::before {
-    content: "Search with Kami";
-}
-
-/* Hide SearXNG links in preferences */
-a[href*="searxng.org"],
-a[href*="github.com/searxng"] {
-    display: none !important;
-}
-
-/* Clean up the interface */
-.center {
-    text-align: center;
-}
-
-/* Kami brand colors (optional - customize these) */
+/* Kami brand colors */
 :root {
     --color-primary: #667eea;
     --color-secondary: #764ba2;
+    --kami-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* Apply brand colors to buttons */
-.search_btn,
-button[type="submit"] {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-    border: none;
-    color: white;
+/* Hide SearXNG branding in footer */
+footer p,
+footer a[href*="searxng"],
+footer a[href*="github.com/searxng"],
+#main_preferences footer {
+    display: none !important;
+}
+
+/* Hide documentation and info links */
+a[href*="docs.searxng.org"],
+a[href*="searxng.org"],
+.link_on_new_window[href*="github.com/searxng"] {
+    display: none !important;
+}
+
+/* Style the search button with Kami gradient */
+#search_form button[type="submit"],
+.search_submit button,
+button.btn-primary {
+    background: var(--kami-gradient) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 1.5rem !important;
+    border-radius: 0.375rem !important;
+    transition: transform 0.2s !important;
+}
+
+#search_form button[type="submit"]:hover,
+button.btn-primary:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3) !important;
+}
+
+/* Add Kitsune emoji to the main logo/brand */
+#main_index h1::before,
+.brand h1::before,
+.index h1::before {
+    content: "🦊 ";
+}
+
+/* Style the main heading */
+#main_index h1,
+.index h1 {
+    font-weight: 600 !important;
+    background: var(--kami-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Clean up preferences page */
+#main_preferences .tabs {
+    border-bottom-color: var(--color-primary) !important;
+}
+
+/* Hide "Learn more about" sections in preferences */
+.description p:has(a[href*="searxng.org"]) {
+    display: none !important;
+}
+
+/* Remove SearXNG info text */
+p:has(> a[href*="searxng.org"]),
+div:has(> a[href*="github.com/searxng"]) {
+    display: none !important;
 }
