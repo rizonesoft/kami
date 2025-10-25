@@ -46,11 +46,6 @@ WORKDIR /usr/local/searxng
 RUN mkdir -p /etc/searxng
 COPY --chown=searxng:searxng settings.yml /etc/searxng/settings.yml
 
-# Copy custom CSS and inject into theme
-COPY custom.css /tmp/kami-custom.css
-RUN cat /tmp/kami-custom.css >> /usr/local/searxng/searx/static/themes/simple/css/searxng.min.css && \
-    rm /tmp/kami-custom.css
-
 # Set proper permissions
 RUN chown -R searxng:searxng /usr/local/searxng /etc/searxng
 
