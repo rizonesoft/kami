@@ -14,8 +14,11 @@ RUN git clone https://github.com/rizonesoft/kami-search.git .
 # Final stage - use official image and overlay kami-search source
 FROM searxng/searxng:latest
 
-# Copy kami-search source over the official source
+# Copy ALL kami-search source files (not just searx directory)
+# This includes branding, static files, templates, client files, etc.
 COPY --from=builder --chown=searxng:searxng /app/searx /usr/local/searxng/searx
+COPY --from=builder --chown=searxng:searxng /app/searxng_extra /usr/local/searxng/searxng_extra
+COPY --from=builder --chown=searxng:searxng /app/client /usr/local/searxng/client
 
 # Copy custom settings
 COPY --chown=searxng:searxng settings.yml /etc/searxng/settings.yml
