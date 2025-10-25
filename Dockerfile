@@ -6,8 +6,10 @@ WORKDIR /usr/local/searxng
 # Copy custom settings and branding
 COPY --chown=searxng:searxng settings.yml /etc/searxng/settings.yml
 
-# Copy custom templates to override SearXNG branding
-COPY --chown=searxng:searxng templates/ /usr/local/searxng/searx/templates/
+# Rebrand SearXNG to Kami Search in source files
+RUN find /usr/local/searxng/searx -type f -name "*.html" -exec sed -i 's/SearXNG/Kami Search/g' {} \; && \
+    find /usr/local/searxng/searx -type f -name "*.html" -exec sed -i 's/searxng\.org//g' {} \; && \
+    find /usr/local/searxng/searx -type f -name "*.html" -exec sed -i 's/github\.com\/searxng\/searxng//g' {} \;
 
 # Inject Kami branding CSS into the theme
 COPY custom.css /tmp/kami-custom.css
