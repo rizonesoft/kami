@@ -1,24 +1,36 @@
-# Use official SearXNG image as base, then overlay kami-search source
-FROM searxng/searxng:latest AS official
-
-# Build stage - clone kami-search repository
+# Build stage - clone and build kami-search with custom branding
 FROM python:3.11-alpine AS builder
 
-# Install git to clone repository
-RUN apk add --no-cache git
+# Install build dependencies (git, node, make, python build tools)
+RUN apk add --no-cache \
+    git \
+    make \
+    bash \
+    nodejs \
+    npm \
+    python3-dev \
+    build-base \
+    libxml2-dev \
+    libxslt-dev \
+    openssl-dev \
+    libffi-dev
 
-# Clone kami-search repository (rebuild from latest source)
+# Clone kami-search repository
 WORKDIR /app
 RUN git clone https://github.com/rizonesoft/kami-search.git .
 
-# Final stage - use official image and overlay kami-search source
+# Install Python dependencies
+RUN pip install --no-cache-dir -e .
+
+# Build the themes/static files with custom Kami branding
+# This compiles TypeScript, processes CSS, and copies branded assets
+RUN make themes.all
+
+# Final stage - use official SearXNG image and overlay built kami-search
 FROM searxng/searxng:latest
 
-# Copy ALL kami-search source files (not just searx directory)
-# This includes branding, static files, templates, client files, etc.
+# Copy the BUILT application with compiled static files
 COPY --from=builder --chown=searxng:searxng /app/searx /usr/local/searxng/searx
-COPY --from=builder --chown=searxng:searxng /app/searxng_extra /usr/local/searxng/searxng_extra
-COPY --from=builder --chown=searxng:searxng /app/client /usr/local/searxng/client
 
 # Copy custom settings
 COPY --chown=searxng:searxng settings.yml /etc/searxng/settings.yml
